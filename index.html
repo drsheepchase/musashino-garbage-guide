@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Musashino AI Garbage Guide</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f1f5f9;
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 450px;
+            width: 100%;
+            background: white;
+            padding: 24px 16px;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        h1 { color: #1b5e20; font-size: 22px; margin-top: 0; margin-bottom: 8px; }
+        .subtitle { color: #64748b; font-size: 14px; margin-bottom: 16px; line-height: 1.4; }
+        
+        /* New public welcoming announcement banner */
+        .public-notice {
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 13px;
+            text-align: left;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+        .public-notice strong {
+            color: #14532d;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .public-notice a {
+            color: #15803d;
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+        /* Key Configuration Box Styling */
+        .key-config-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .key-config-box label {
+            font-size: 12px;
+            font-weight: bold;
+            color: #475569;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .key-input-container {
+            display: flex;
+            gap: 8px;
+        }
+        .key-input {
+            flex: 1;
+            padding: 8px 12px;
+            font-size: 13px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            margin: 0;
+        }
+        .save-btn {
+            padding: 8px 14px;
+            background-color: #475569;
+            font-size: 13px;
+            width: auto;
+            box-shadow: none;
+        }
+        .key-status {
+            font-size: 11px;
+            margin-top: 6px;
+            color: #64748b;
+        }
+
+        /* Core search elements */
+        input.search-input {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+            -webkit-appearance: none;
+        }
+        input.search-input:focus { border-color: #2e7d32; }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: #2e7d32;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px -1px rgba(46, 125, 50, 0.2);
+            -webkit-tap-highlight-color: transparent;
+        }
+        button:active { background-color: #1b5e20; transform: scale(0.98); }
+        
+        #result { margin-top: 20px; border-radius: 12px; display: none; text-align: left; width: 100%; }
+        .card { padding: 18px; border-radius: 12px; box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.02); }
+        .item-header { margin-bottom: 12px; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 10px; }
+        .item-title-en { font-size: 18px; font-weight: bold; margin: 0; }
+        .item-title-ja { font-size: 14px; color: #475569; margin: 4px 0 0 0; font-style: italic; }
+        .category-badge { font-size: 22px; font-weight: 800; margin-top: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .burnable { background-color: #fef2f2; color: #dc2626; border: 1px solid #fee2e2; }
+        .unburnable { background-color: #eff6ff; color: #2563eb; border: 1px solid #dbeafe; }
+        .plastic { background-color: #f0fdf4; color: #16a34a; border: 1px solid #dcfce7; }
+        .oversized { background-color: #fff7ed; color: #ea580c; border: 1px solid #ffedd5; }
+        .loading { color: #64748b; font-style: italic; text-align: center; margin: 15px 0; font-size: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Musashino Garbage AI 🤖</h1>
+    <div class="subtitle">An open-source sorting companion for Musashino City, Tokyo.</div>
+    
+    <!-- Explanatory public welcome notice block -->
+    <div class="public-notice">
+        <strong>👋 Welcome! This app is 100% Free & Private.</strong>
+        To run queries completely free without using standard servers, this tool operates entirely inside your own browser. To use it, simply paste your free personal Gemini API key below. Your key is saved locally in your own browser's secure memory and is never shared or transmitted anywhere else.
+    </div>
+
+    <!-- Setup section for public users -->
+    <div class="key-config-box">
+        <label for="api-key-input">🔑 Enter Your Free Gemini API Key:</label>
+        <div class="key-input-container">
+            <input type="password" id="api-key-input" class="key-input" placeholder="AIzaSy...">
+            <button onclick="saveApiKey()" class="save-btn">Save</button>
+        </div>
+        <div id="key-status" class="key-status">Don't have one? Get a free key instantly at <a href="https://aistudio.google.com/" target="_blank">Google AI Studio</a>.</div>
+    </div>
+    
+    <input type="text" id="search-input" class="search-input" placeholder="e.g., pizza box, broken mug, frypan" onkeydown="handleKeyPress(event)">
+    <button onclick="searchGarbageAI()">Check Sorting</button>
+
+    <div id="result"></div>
+</div>
+
+<script>
+    window.onload = function() {
+        const savedKey = localStorage.getItem("user_gemini_key");
+        if (savedKey) {
+            document.getElementById("api-key-input").value = savedKey;
+            document.getElementById("key-status").innerHTML = "🛡️ Key saved securely in your browser storage.";
+            document.getElementById("key-status").style.color = "#16a34a";
+        }
+    }
+
+    function saveApiKey() {
+        const keyInput = document.getElementById("api-key-input").value.trim();
+        if (keyInput === "") {
+            localStorage.removeItem("user_gemini_key");
+            document.getElementById("key-status").innerHTML = "Don't have one? Get a free key instantly at <a href='https://aistudio.google.com/' target='_blank'>Google AI Studio</a>.";
+            document.getElementById("key-status").style.color = "#64748b";
+            alert("API Key cleared.");
+        } else {
+            localStorage.setItem("user_gemini_key", keyInput);
+            document.getElementById("key-status").innerHTML = "🛡️ Key saved securely in your browser storage.";
+            document.getElementById("key-status").style.color = "#16a34a";
+            alert("API Key saved successfully!");
+        }
+    }
+
+    function handleKeyPress(event) {
+        if (event.key === "Enter") {
+            searchGarbageAI();
+        }
+    }
+
+    async function searchGarbageAI() {
+        const currentKey = localStorage.getItem("user_gemini_key");
+        const query = document.getElementById("search-input").value.trim();
+        const resultDiv = document.getElementById("result");
+        
+        if (!currentKey) {
+            alert("Please enter a Gemini API Key in the settings box at the top first!");
+            return;
+        }
+        if (query === "") {
+            alert("Please type a household item to search.");
+            return;
+        }
+
+        document.getElementById("search-input").blur();
+        resultDiv.style.display = "block";
+        resultDiv.innerHTML = "<p class='loading'>Consulting municipal rules...</p>";
+
+        const systemInstruction = "You are an expert assistant specialized in Musashino City (Tokyo) garbage disposal. Analyze the user's input item. Identify how it is sorted according to Musashino guidelines (30cm rule applies). Respond ONLY with a raw JSON object containing these string keys: 'nameEN', 'nameJA', 'category', 'style' (must be either 'burnable', 'unburnable', 'plastic', or 'oversized'), and 'notes' (detailed English explanation of specifics like bags, washing, or sizes). Do not wrap the response in code blocks or markdown, return plain text JSON.";
+
+        try {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${currentKey}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: `${systemInstruction}\n\nUser item: ${query}` }] }]
+                })
+            });
+
+            const data = await response.json();
+            let aiTextResult = data.candidates[0].content.parts[0].text;
+            
+            aiTextResult = aiTextResult.replace(/```json/g, "").replace(/```/g, "").trim();
+            const match = JSON.parse(aiTextResult);
+
+            resultDiv.innerHTML = `
+                <div class="card ${match.style}">
+                    <div class="item-header">
+                        <p class="item-title-en">🔍 ${match.nameEN}</p>
+                        <p class="item-title-ja">${match.nameJA}</p>
+                    </div>
+                    <div class="category-badge">${match.category}</div>
+                    <p style="font-weight: normal; font-size: 14px; margin-top: 12px; line-height: 1.5;">${match.notes}</p>
+                </div>
+            `;
+        } catch (error) {
+            console.error(error);
+            resultDiv.innerHTML = "<p class='loading' style='color: #dc2626;'>Error checking guidelines. Please ensure your API key is correct and valid.</p>";
+        }
+    }
+</script>
+
+</body>
+</html>
