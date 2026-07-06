@@ -63,27 +63,12 @@
             font-size: 13px;
             border: 1px solid #cbd5e1;
             border-radius: 8px;
-            margin-bottom: 8px;
-        }
-        
-        /* New Checkbox Wrapper */
-        .remember-me-container {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 12px;
-            color: #475569;
-            cursor: pointer;
-            user-select: none;
-        }
-        .remember-me-container input {
-            cursor: pointer;
-            margin: 0;
+            margin-bottom: 4px;
         }
 
         .key-status {
             font-size: 11px;
-            margin-top: 8px;
+            margin-top: 6px;
             color: #64748b;
             line-height: 1.4;
         }
@@ -139,21 +124,15 @@
     <div class="subtitle">An open-source sorting companion for Musashino City, Tokyo.</div>
     
     <div class="public-notice">
-        <strong>👋 Welcome! This app is 100% Free & Private.</strong>
-        To run queries completely free without using middleman servers, this tool operates entirely inside your own browser using your personal Gemini API key.
+        <strong>🛡️ Ultra-Secure Session Mode Active</strong>
+        Your key is held strictly in isolated browser memory. It is automatically wiped and destroyed the second you close this browser tab.
     </div>
 
-    <!-- Security Upgraded Setup Section -->
+    <!-- Security Hardened Setup Section -->
     <div class="key-config-box">
-        <label for="api-key-input">🔑 Gemini API Key:</label>
+        <label for="api-key-input">🔑 Temporary Gemini API Key:</label>
         <input type="password" id="api-key-input" class="key-input" placeholder="Paste your AIzaSy... key here" oninput="handleKeyInput()">
-        
-        <label class="remember-me-container">
-            <input type="checkbox" id="remember-checkbox" onchange="toggleRememberMe()">
-            Remember this key on this device
-        </label>
-        
-        <div id="key-status" class="key-status">Don't have a key? Get one free instantly at <a href="https://aistudio.google.com/" target="_blank">Google AI Studio</a>.</div>
+        <div id="key-status" class="key-status">Need a key? Get one free at <a href="https://aistudio.google.com/" target="_blank">Google AI Studio</a>.</div>
     </div>
     
     <input type="text" id="search-input" class="search-input" placeholder="e.g., pizza box, broken mug, frypan" onkeydown="handleKeyPress(event)">
@@ -163,58 +142,36 @@
 </div>
 
 <script>
-    // On load, look for a key ONLY if they previously allowed it
+    // Look for a key assigned ONLY to this active browsing session tab
     window.onload = function() {
-        const savedKey = localStorage.getItem("user_gemini_key");
-        if (savedKey) {
-            document.getElementById("api-key-input").value = savedKey;
-            document.getElementById("remember-checkbox").checked = true;
-            updateStatusMessage(true);
+        const activeSessionKey = sessionStorage.getItem("secure_session_key");
+        if (activeSessionKey) {
+            document.getElementById("api-key-input").value = activeSessionKey;
+            updateStatusMessage();
         }
     }
 
-    // Handles typing in the box
+    // Capture and secure input into memory instantly as they type
     function handleKeyInput() {
-        const checkbox = document.getElementById("remember-checkbox").checked;
-        if (checkbox) {
-            // If checkbox is checked, save immediately on type
-            const keyInput = document.getElementById("api-key-input").value.trim();
-            if(keyInput !== "") {
-                localStorage.setItem("user_gemini_key", keyInput);
-            } else {
-                localStorage.removeItem("user_gemini_key");
-            }
-        }
-        updateStatusMessage(checkbox);
-    }
-
-    // Handles checking/unchecking the box
-    function toggleRememberMe() {
-        const checkbox = document.getElementById("remember-checkbox").checked;
         const keyInput = document.getElementById("api-key-input").value.trim();
-        
-        if (checkbox && keyInput !== "") {
-            localStorage.setItem("user_gemini_key", keyInput);
-            updateStatusMessage(true);
+        if (keyInput !== "") {
+            sessionStorage.setItem("secure_session_key", keyInput);
         } else {
-            localStorage.removeItem("user_gemini_key");
-            updateStatusMessage(false);
+            sessionStorage.removeItem("secure_session_key");
         }
+        updateStatusMessage();
     }
 
-    function updateStatusMessage(isSaved) {
+    function updateStatusMessage() {
         const statusDiv = document.getElementById("key-status");
         const keyInput = document.getElementById("api-key-input").value.trim();
         
         if (keyInput === "") {
-            statusDiv.innerHTML = "Don't have a key? Get one free instantly at <a href='https://aistudio.google.com/' target='_blank'>Google AI Studio</a>.";
+            statusDiv.innerHTML = "Need a key? Get one free at <a href='https://aistudio.google.com/' target='_blank'>Google AI Studio</a>.";
             statusDiv.style.color = "#64748b";
-        } else if (isSaved) {
-            statusDiv.innerHTML = "🛡️ Key saved securely to this device. Uncheck to delete.";
-            statusDiv.style.color = "#16a34a";
         } else {
-            statusDiv.innerHTML = "⚡ Using key temporarily for this session. It will be forgotten when you close the tab.";
-            statusDiv.style.color = "#ea580c";
+            statusDiv.innerHTML = "🔒 Key isolated in tab session memory. Safe from storage trackers.";
+            statusDiv.style.color = "#16a34a";
         }
     }
 
@@ -223,13 +180,13 @@
     }
 
     async function searchGarbageAI() {
-        // Read directly from the input field box so it works whether saved or temporary!
-        const currentKey = document.getElementById("api-key-input").value.trim();
+        // Read directly from the highly restricted session memory
+        const currentKey = sessionStorage.getItem("secure_session_key");
         const query = document.getElementById("search-input").value.trim();
         const resultDiv = document.getElementById("result");
         
         if (!currentKey) {
-            alert("Please enter a Gemini API Key in the settings box at the top first!");
+            alert("Please paste your Gemini API Key into the configuration box at the top first!");
             return;
         }
         if (query === "") {
