@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Musashino AI Garbage Guide</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗑️</text></svg>">
     <style>
         * { box-sizing: border-box; }
         body {
@@ -29,7 +28,6 @@
         h1 { color: #1b5e20; font-size: 22px; margin-top: 0; margin-bottom: 8px; }
         .subtitle { color: #64748b; font-size: 14px; margin-bottom: 16px; line-height: 1.4; }
         
-        /* New public welcoming announcement banner */
         .public-notice {
             background-color: #f0fdf4;
             border: 1px solid #bbf7d0;
@@ -41,23 +39,14 @@
             line-height: 1.5;
             margin-bottom: 20px;
         }
-        .public-notice strong {
-            color: #14532d;
-            display: block;
-            margin-bottom: 4px;
-        }
-        .public-notice a {
-            color: #15803d;
-            font-weight: bold;
-            text-decoration: underline;
-        }
+        .public-notice strong { color: #14532d; display: block; margin-bottom: 4px; }
 
         /* Key Configuration Box Styling */
         .key-config-box {
             background-color: #f8fafc;
             border: 1px solid #e2e8f0;
             border-radius: 12px;
-            padding: 12px;
+            padding: 14px;
             margin-bottom: 20px;
             text-align: left;
         }
@@ -68,30 +57,37 @@
             display: block;
             margin-bottom: 6px;
         }
-        .key-input-container {
-            display: flex;
-            gap: 8px;
-        }
         .key-input {
-            flex: 1;
-            padding: 8px 12px;
+            width: 100%;
+            padding: 10px 12px;
             font-size: 13px;
             border: 1px solid #cbd5e1;
             border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        
+        /* New Checkbox Wrapper */
+        .remember-me-container {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #475569;
+            cursor: pointer;
+            user-select: none;
+        }
+        .remember-me-container input {
+            cursor: pointer;
             margin: 0;
         }
-        .save-btn {
-            padding: 8px 14px;
-            background-color: #475569;
-            font-size: 13px;
-            width: auto;
-            box-shadow: none;
-        }
+
         .key-status {
             font-size: 11px;
-            margin-top: 6px;
+            margin-top: 8px;
             color: #64748b;
+            line-height: 1.4;
         }
+        .key-status a { color: #2e7d32; font-weight: bold; }
 
         /* Core search elements */
         input.search-input {
@@ -107,7 +103,7 @@
         }
         input.search-input:focus { border-color: #2e7d32; }
         
-        button {
+        button.search-btn {
             width: 100%;
             padding: 14px;
             background-color: #2e7d32;
@@ -120,7 +116,7 @@
             box-shadow: 0 4px 6px -1px rgba(46, 125, 50, 0.2);
             -webkit-tap-highlight-color: transparent;
         }
-        button:active { background-color: #1b5e20; transform: scale(0.98); }
+        button.search-btn:active { background-color: #1b5e20; transform: scale(0.98); }
         
         #result { margin-top: 20px; border-radius: 12px; display: none; text-align: left; width: 100%; }
         .card { padding: 18px; border-radius: 12px; box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.02); }
@@ -142,61 +138,93 @@
     <h1>Musashino Garbage AI 🤖</h1>
     <div class="subtitle">An open-source sorting companion for Musashino City, Tokyo.</div>
     
-    <!-- Explanatory public welcome notice block -->
     <div class="public-notice">
         <strong>👋 Welcome! This app is 100% Free & Private.</strong>
-        To run queries completely free without using standard servers, this tool operates entirely inside your own browser. To use it, simply paste your free personal Gemini API key below. Your key is saved locally in your own browser's secure memory and is never shared or transmitted anywhere else.
+        To run queries completely free without using middleman servers, this tool operates entirely inside your own browser using your personal Gemini API key.
     </div>
 
-    <!-- Setup section for public users -->
+    <!-- Security Upgraded Setup Section -->
     <div class="key-config-box">
-        <label for="api-key-input">🔑 Enter Your Free Gemini API Key:</label>
-        <div class="key-input-container">
-            <input type="password" id="api-key-input" class="key-input" placeholder="AIzaSy...">
-            <button onclick="saveApiKey()" class="save-btn">Save</button>
-        </div>
-        <div id="key-status" class="key-status">Don't have one? Get a free key instantly at <a href="https://aistudio.google.com/" target="_blank">Google AI Studio</a>.</div>
+        <label for="api-key-input">🔑 Gemini API Key:</label>
+        <input type="password" id="api-key-input" class="key-input" placeholder="Paste your AIzaSy... key here" oninput="handleKeyInput()">
+        
+        <label class="remember-me-container">
+            <input type="checkbox" id="remember-checkbox" onchange="toggleRememberMe()">
+            Remember this key on this device
+        </label>
+        
+        <div id="key-status" class="key-status">Don't have a key? Get one free instantly at <a href="https://aistudio.google.com/" target="_blank">Google AI Studio</a>.</div>
     </div>
     
     <input type="text" id="search-input" class="search-input" placeholder="e.g., pizza box, broken mug, frypan" onkeydown="handleKeyPress(event)">
-    <button onclick="searchGarbageAI()">Check Sorting</button>
+    <button onclick="searchGarbageAI()" class="search-btn">Check Sorting</button>
 
     <div id="result"></div>
 </div>
 
 <script>
+    // On load, look for a key ONLY if they previously allowed it
     window.onload = function() {
         const savedKey = localStorage.getItem("user_gemini_key");
         if (savedKey) {
             document.getElementById("api-key-input").value = savedKey;
-            document.getElementById("key-status").innerHTML = "🛡️ Key saved securely in your browser storage.";
-            document.getElementById("key-status").style.color = "#16a34a";
+            document.getElementById("remember-checkbox").checked = true;
+            updateStatusMessage(true);
         }
     }
 
-    function saveApiKey() {
+    // Handles typing in the box
+    function handleKeyInput() {
+        const checkbox = document.getElementById("remember-checkbox").checked;
+        if (checkbox) {
+            // If checkbox is checked, save immediately on type
+            const keyInput = document.getElementById("api-key-input").value.trim();
+            if(keyInput !== "") {
+                localStorage.setItem("user_gemini_key", keyInput);
+            } else {
+                localStorage.removeItem("user_gemini_key");
+            }
+        }
+        updateStatusMessage(checkbox);
+    }
+
+    // Handles checking/unchecking the box
+    function toggleRememberMe() {
+        const checkbox = document.getElementById("remember-checkbox").checked;
         const keyInput = document.getElementById("api-key-input").value.trim();
-        if (keyInput === "") {
-            localStorage.removeItem("user_gemini_key");
-            document.getElementById("key-status").innerHTML = "Don't have one? Get a free key instantly at <a href='https://aistudio.google.com/' target='_blank'>Google AI Studio</a>.";
-            document.getElementById("key-status").style.color = "#64748b";
-            alert("API Key cleared.");
-        } else {
+        
+        if (checkbox && keyInput !== "") {
             localStorage.setItem("user_gemini_key", keyInput);
-            document.getElementById("key-status").innerHTML = "🛡️ Key saved securely in your browser storage.";
-            document.getElementById("key-status").style.color = "#16a34a";
-            alert("API Key saved successfully!");
+            updateStatusMessage(true);
+        } else {
+            localStorage.removeItem("user_gemini_key");
+            updateStatusMessage(false);
+        }
+    }
+
+    function updateStatusMessage(isSaved) {
+        const statusDiv = document.getElementById("key-status");
+        const keyInput = document.getElementById("api-key-input").value.trim();
+        
+        if (keyInput === "") {
+            statusDiv.innerHTML = "Don't have a key? Get one free instantly at <a href='https://aistudio.google.com/' target='_blank'>Google AI Studio</a>.";
+            statusDiv.style.color = "#64748b";
+        } else if (isSaved) {
+            statusDiv.innerHTML = "🛡️ Key saved securely to this device. Uncheck to delete.";
+            statusDiv.style.color = "#16a34a";
+        } else {
+            statusDiv.innerHTML = "⚡ Using key temporarily for this session. It will be forgotten when you close the tab.";
+            statusDiv.style.color = "#ea580c";
         }
     }
 
     function handleKeyPress(event) {
-        if (event.key === "Enter") {
-            searchGarbageAI();
-        }
+        if (event.key === "Enter") { searchGarbageAI(); }
     }
 
     async function searchGarbageAI() {
-        const currentKey = localStorage.getItem("user_gemini_key");
+        // Read directly from the input field box so it works whether saved or temporary!
+        const currentKey = document.getElementById("api-key-input").value.trim();
         const query = document.getElementById("search-input").value.trim();
         const resultDiv = document.getElementById("result");
         
